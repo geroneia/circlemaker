@@ -1,52 +1,58 @@
 let container = document.createElement('div');
 const ROW = "Ряд_";
 const readyscheme = document.querySelector('.readyscheme');
+const initialscheme = document.querySelector('.initialscheme');
+const clearButton = document.querySelector('clearButton');
 container.classList = 'container';
 
 let value = document.querySelector('textarea').value;
+initialscheme.value = '';
+readyscheme.value = '';
 
 
-function getText0() {
-  return document.querySelector('textarea').value;
+
+function groupToCircles () {
+  const groups = document.querySelectorAll('g');
+  groups.forEach((group) => {
+    let id = group.id
+    if (id.includes(ROW)) {
+
+      if (group.querySelector('circle')) {
+        let circle = group.querySelector('circle');
+        circle.setAttribute('id', id);
+        console.log(circle);
+
+        group.parentNode.replaceChild(circle, group)
+      } else if (group.querySelector('ellipse')) {
+        let ellipse = group.querySelector('ellipse');
+        ellipse.setAttribute('id', id);
+        console.log(ellipse);
+
+        group.parentNode.replaceChild(ellipse, group)
+
+      }
+    }
+    });
+};
+
+function transformMarkup () {
+  getMarkup = () => initialscheme.value;
+  document.body.append(container);
+  container.insertAdjacentHTML("afterbegin", getMarkup());
+  if (initialscheme.value&&document.querySelector('svg')) {
+    groupToCircles();
+    readyscheme.value = container.innerHTML;
+  } else {
+    alert ("Только схему зала, пожалуйста");
+  }
+
 }
 
 
+initialscheme.addEventListener("input", transformMarkup);
+clearButton.addEventListener("click", function (evt) {
+  evt.preventDefault();
+  initialscheme.value = '';
+  readyscheme.value = '';
+})
 
-
-window.addEventListener("input", function() {
-  document.body.append(container);
-  container.insertAdjacentHTML("afterbegin", getText0());
-  const paths = document.querySelectorAll('path');
-  // paths.forEach(path => path.id.includes("Ряд") ? console.log(path.getAttribute('d')) : console.log("КОнтур"));
-  const circles = document.querySelectorAll('circle');
-  let circleR = '';
-  circles.forEach(circle => {
-    if (circle.id.includes("Ряд")&&!circleR) {
-      circleR = circle.getAttribute('r')
-      console.log('Радиус ' + circleR)
-      return circleR;
-    }
-  });
-  paths.forEach((path) => {
-    if (path.id.includes("Ряд")) {
-      let d = path.getAttribute('d');
-      d.slice(d.indexOf('M')+1,d.indexOf('c'))
-      const result = d.slice(d.indexOf('M')+1,d.indexOf('c')).split(',');
-      let cx = result[0];
-      let cy = result[1];
-      let id = path.id
-      console.log(cx);
-      let circle = document.createElement('circle');
-      circle.setAttribute('id', id);
-      circle.setAttribute('class',"st1");
-      circle.setAttribute('cx', cx);
-      circle.setAttribute('cy', cy);
-      circle.setAttribute('r', circleR);
-      // circle = circle.toString();
-      path.insertAdjacentHTML("afterend", circle);
-      path.parentNode.replaceChild(circle, path);
-      console.log(typeof circle);
-    }
-  });
-  readyscheme.value = document.querySelector('svg').innerHTML;
-  });
